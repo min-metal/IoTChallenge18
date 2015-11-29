@@ -303,14 +303,7 @@ char * LoRaModem::getAsciiAsP(){
 }
 
 #define STRLEN 50
-
-typedef struct 
-{
-  int message_id;
-  int port;
-  char message[STRLEN];
-} Message;
-
+#include "Message.h"
 
 /***************************************************************
  * Normal Arduino stuff starts here.
@@ -347,79 +340,36 @@ void setup()
 
 void loop() // run over and over
 {
+  String returnMessage;
   
   modem.cMsg("100,123.45");
-  delay(5000);
+  delay(2000);
 
   String test = modem.getAscii();
   //char * test = modem.getAsciiAsP();
   delay(1000);
-
-//  if(test[0] == '2')
-//  {
-//    DEBUG_PRINT("First char is \'2\'\n");
-//  }
   
   DEBUG_PRINT(test);
 
   Message message;
-  int messageID = getMessageId(test, &message);
+  boolean operationResult = getMessage(test, &message);
 
-  Serial.print("ID: ");
-  Serial.println(message.message_id);
-  Serial.print("Port: ");
-  Serial.println(message.port);
+  if(operationResult)
+  {
+    Serial.print("ID: ");
+    Serial.println(message.message_id);
+    Serial.print("Port: ");
+    Serial.println(message.port);
+    Serial.print("Message: ");
+    Serial.println(message.message);
+    
+    returnMessage = "300," + String(message.port);
+    modem.cMsg(returnMessage);
+    delay(1000);
+  }
+  
 
   //free(test);
-}
-
-int getMessageId(String string, Message * message)
-{
-  String buf = "";
-  buf.reserve(STRLEN);
-  int messageID = -1, port = 0;
-  int i = 0;
-
-  // first interation to find ','
-  for(i = 0; i < string.length(); ++i)
-  {
-    if(string.charAt(i) == ',')
-    {
-      break;
-    }
-    buf += string.charAt(i);   
-  }
-
-  messageID = buf.toInt();
-  buf = "";
-
-  // second iteration
-  for(i = i+1; i < string.length(); ++i)
-  {
-    if(string.charAt(i) == ',')
-    {
-      break;
-    }
-    buf += string.charAt(i);
-  }
-
-  port = buf.toInt();
-  buf = "";
-
-  for(i = i+1; i < string.length(); ++i)
-  {
-    if(string.charAt(i) == ',')
-    {
-      break;
-    }
-    buf += string.charAt(i);
-  }
-
-  
-  message->message_id = messageID;
-  message->port = port;
-  string.toCharArray(message->message, STRLEN);
-  
 }
 
 
