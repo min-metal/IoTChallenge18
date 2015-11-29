@@ -1,5 +1,7 @@
 // Sourced from http://playground.arduino.cc/Main/PanasonicIrSensor
 
+
+#include "IR_Sensor.h"
 int irRead(int readPin, int triggerPin); //function prototype
 
 void IR_setup()

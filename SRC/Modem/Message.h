@@ -1,3 +1,6 @@
+#ifndef MESSAGE
+#define MESSAGE
+
 typedef struct 
 {
   int message_id;
@@ -6,4 +9,6 @@ typedef struct
 } Message;
 
 boolean getMessage(String string, Message * message);
+
+#endif
 
