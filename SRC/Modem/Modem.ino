@@ -304,6 +304,7 @@ char * LoRaModem::getAsciiAsP(){
 
 #define STRLEN 50
 #include "Message.h"
+#include "IR_Sensor.h"
 
 /***************************************************************
  * Normal Arduino stuff starts here.
@@ -319,6 +320,8 @@ void setup()
     // wait a moment for the serial port to finish starting up
     delay(1000);
   #endif
+
+  IR_setup();
   
   DEBUG_PRINT("Connected");
 
@@ -341,9 +344,9 @@ void setup()
 void loop() // run over and over
 {
   String returnMessage;
-  
-  modem.cMsg("100,123.45");
-  delay(2000);
+//  
+//  modem.cMsg("100,123.45");
+//  delay(2000);
 
   String test = modem.getAscii();
   //char * test = modem.getAsciiAsP();
