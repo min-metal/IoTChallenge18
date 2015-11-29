@@ -61,6 +61,7 @@ class LoRaModem
     int Reset();
 
     String getAscii();
+    char * getAsciiAsP();
     
     char modemResp[rx_buffer];
     char DevAddr[12];
@@ -273,14 +274,49 @@ String LoRaModem::getAscii(){
     }
 }
 
+char * LoRaModem::getAsciiAsP(){
+
+  char buf[100];
+  char * bufAscii = (char *) malloc(100);
+  
+  char result = _rspMs.Match(".+RX: \"(.+)\".+", 0);
+  if (result == REGEXP_MATCHED)
+  {
+    _rspMs.GetCapture (buf, 0);
+  
+    int j = 0;
+    for (int i = 0; i < strlen(buf)+1; i += 3) 
+    {
+      char val = buf[i] > 0x39 ? (buf[i] - 55) * 16 : (buf[i] - '0') * 16;
+      val += buf[i+1] > 0x39 ? (buf[i+1] - 55) : (buf[i+1] - '0');
+      bufAscii[j++] = val;
+    }
+    return bufAscii;
+  }
+  else
+  {
+    DEBUG_PRINT("No ASCII payload...");
+    return NULL;
+  }
+
+    
+}
+
+#define STRLEN 50
+
+typedef struct 
+{
+  int message_id;
+  int port;
+  char message[STRLEN];
+} Message;
+
 
 /***************************************************************
  * Normal Arduino stuff starts here.
  */
 
 LoRaModem modem;
-
-#define STRLEN 127
 
 void setup()
 {
@@ -303,35 +339,87 @@ void setup()
 //  modem.setKeys(idNwSKey, idAppSKey);
 //
 //  modem.Msg("9999");
-
-  char * str_buffer = (char *) malloc(STRLEN);
   
 }
 
 /* Loop ****************************/
 
 
-
 void loop() // run over and over
 {
   
   modem.cMsg("100,123.45");
-
   delay(5000);
 
   String test = modem.getAscii();
+  //char * test = modem.getAsciiAsP();
+  delay(1000);
 
+//  if(test[0] == '2')
+//  {
+//    DEBUG_PRINT("First char is \'2\'\n");
+//  }
   
-
-  delay(2000);
   DEBUG_PRINT(test);
 
-  if(test.equals("201,10877,k"))
-  {
-    modem.Msg("300,10877");
-  }
-  
+  Message message;
+  int messageID = getMessageId(test, &message);
 
+  Serial.print("ID: ");
+  Serial.println(message.message_id);
+  Serial.print("Port: ");
+  Serial.println(message.port);
+
+  //free(test);
+}
+
+int getMessageId(String string, Message * message)
+{
+  String buf = "";
+  buf.reserve(STRLEN);
+  int messageID = -1, port = 0;
+  int i = 0;
+
+  // first interation to find ','
+  for(i = 0; i < string.length(); ++i)
+  {
+    if(string.charAt(i) == ',')
+    {
+      break;
+    }
+    buf += string.charAt(i);   
+  }
+
+  messageID = buf.toInt();
+  buf = "";
+
+  // second iteration
+  for(i = i+1; i < string.length(); ++i)
+  {
+    if(string.charAt(i) == ',')
+    {
+      break;
+    }
+    buf += string.charAt(i);
+  }
+
+  port = buf.toInt();
+  buf = "";
+
+  for(i = i+1; i < string.length(); ++i)
+  {
+    if(string.charAt(i) == ',')
+    {
+      break;
+    }
+    buf += string.charAt(i);
+  }
+
+  
+  message->message_id = messageID;
+  message->port = port;
+  string.toCharArray(message->message, STRLEN);
+  
 }
 
 

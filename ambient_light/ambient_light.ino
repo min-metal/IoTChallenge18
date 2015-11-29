@@ -37,11 +37,11 @@ void loop()
   float AmbientLightLux = Tsl2572ReadAmbientLight();
   int LEDnum = AmbientLightLux / 62;  //Scale from 0 to ~1000 in 16 steps
   Serial.print("Lux: ");
-  Serial.print(AmbientLightLux);
+  Serial.println(AmbientLightLux);
 
-  LedOn( min(LEDnum, 16) );
+  //LedOn( min(LEDnum, 16) );
   
-  delay(500);
+  delay(200);
 }
 
 //-------------------------------------------------------------------------------
