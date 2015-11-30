@@ -14,9 +14,9 @@ void IR_setup()
   pinMode(irLedPin2, OUTPUT);
   
   pinMode(enPin,OUTPUT);
-  digitalWrite(enPin,HIGH);
+  digitalWrite(enPin,LOW);
   pinMode(enPin2, OUTPUT);
-  digitalWrite(enPin2,HIGH);
+  digitalWrite(enPin2,LOW);
   
 }
 
@@ -47,61 +47,102 @@ int getTraffic(int (*readOne) (int, int), int (*readTwo) (int, int), Traffic * t
   int ir1, ir2;
   int in = 0, out = 0;
 
-  ir1 = readOne(irSensorPin, irLedPin);
-  ir2 = readTwo(irSensorPin2, irLedPin2); 
+//  digitalWrite(enPin,HIGH);
+//  digitalWrite(enPin2,HIGH);
+//  ir1 = readOne(irSensorPin, irLedPin);
+//  ir2 = readTwo(irSensorPin2, irLedPin2);
+//  digitalWrite(enPin,LOW);
+//  digitalWrite(enPin2,LOW);
+//  Serial.print("ir1: ");
+//  Serial.println(ir1);
+//  Serial.print("ir2: ");
+//  Serial.println(ir2);
+  
+  // delay(1000);
 
-  Serial.print("ir1: ");
-  Serial.println(ir1);
-  Serial.print("ir2: ");
-  Serial.println(ir2);
+  int DELAY = 200;
   
-  delay(1000);
-  
-//
-//  for(int i = 0; i < 100; ++i) //for approx. 10 seconds (100 cycles w/ 100mS delay), read sensors
-//  {
-//    ir1 = readOne(irSensorPin, irLedPin);
-//    ir2 = readTwo(11, 12); //hardcoded for now
-//
-//    if(ir1 == CLOSED)
-//    {
-//      // for approx 2 seconds (100 cycles of 20mS) , read value of 2nd sensor
-//      for(int i = 0; i < 100; ++i)
-//      {
-//        ir2 = readTwo(11 ,12);
-//        delay(20);
-//
-//        if(ir2 == CLOSED)
-//        {
-//          out++;
-//          Serial.println("Someone Exited");
-//          break;
-//        }
-//      } 
-//    }
-//
-//    if(ir2 == CLOSED)
-//    {
-//      // for approx 2 seconds, read value of 2nd sensor
-//      for(int i = 0; i < 100; ++i)
-//      {
-//        ir2 = readTwo(11, 12);
-//        delay(20);
-//
-//        if(ir1 == CLOSED)
-//        {
-//          in++;
-//          Serial.println("Someone Entered");
-//          break;
-//        }
-//      } 
-//    }
-//    
-//    delay(100);
-//  }
+
+  for(int i = 0; i < 50; ++i) //for approx. 10 seconds (100 cycles w/ 100mS delay), read sensors
+  {
+    digitalWrite(enPin,HIGH);
+    digitalWrite(enPin2,HIGH);
+    ir1 = readOne(irSensorPin, irLedPin);
+    ir2 = readTwo(irSensorPin2, irLedPin2); 
+    digitalWrite(enPin,LOW);
+    digitalWrite(enPin2,LOW);
+
+    if(!ir1 && !ir2)
+    {
+      delay(DELAY);
+      continue;
+    }
+    
+    if(ir1 == CLOSED)
+    {
+      boolean success = false;
+      // for approx 2 seconds (10 cycles of 200mS) , read value of 2nd sensor
+      for(int i = 0; i < 5; ++i)
+      {
+        digitalWrite(enPin2,HIGH);
+        ir2 = readTwo(irSensorPin2 ,irLedPin2);
+        digitalWrite(enPin2,LOW);
+
+        if(ir2 == CLOSED)
+        {
+          out++;
+          Serial.println("Someone Exited");
+          delay(10);
+          success = true;
+          break;
+        }
+
+        if(success)
+          break;
+               
+        delay(DELAY);
+      } 
+    }
+    else if(ir2 == CLOSED)
+    {
+      boolean success = false;
+      // for approx 2 seconds, read value of 1st sensor
+      for(int i = 0; i < 5; ++i)
+      {
+        digitalWrite(enPin,HIGH);
+        ir1 = readOne(irSensorPin, irLedPin);
+        digitalWrite(enPin,LOW);
+
+        if(ir1 == CLOSED)
+        {
+          in++;
+          Serial.println("Someone Entered");
+          delay(10);
+          success = true;
+          break;
+        }
+
+        if(success)
+          break;           
+        delay(DELAY);
+      } 
+    }
+    
+    delay(DELAY);
+  }
+
+  digitalWrite(enPin,LOW);
+  digitalWrite(enPin2,LOW);
 
   traffic->in = in;
   traffic->out = out;
+
+  Serial.print("In: ");
+  Serial.println(in);
+  Serial.print("Out: ");
+  Serial.println(out);
+
+  delay(50);
 
   return in - out; 
 }

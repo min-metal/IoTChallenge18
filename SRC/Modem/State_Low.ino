@@ -4,9 +4,9 @@
 
 State_Result State_Low::run()
 {
-  Serial.print("hello World");
-
   Traffic traffic;
+  int amount[100];
+  
   
   while(true)
   {

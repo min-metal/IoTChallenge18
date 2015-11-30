@@ -36,6 +36,9 @@ void setup()
 //  modem.setKeys(idNwSKey, idAppSKey);
 //
 //  modem.Msg("9999");
+
+    modem.Msg("IN:12,OUT:15,AREA:1");
+    modem.Msg("100,12,15,1");
   
 }
 
