@@ -1,14 +1,17 @@
 #define STRLEN 50
 
-#include "Modem.h"
+#include "State.h"
 #include "Message.h"
-#include "IR_Sensor.h"
+
+#include "State_Low.h"
+
 
 /***************************************************************
  * Normal Arduino stuff starts here.
  */
 
 LoRaModem modem;
+State_Low low_state(0, 99, 1, &modem);
 
 void setup()
 {
@@ -68,6 +71,10 @@ void loop() // run over and over
     modem.cMsg(returnMessage);
     delay(1000);
   }
+
+  State_Result result;
+
+  low_state.run();
 
   Serial.println(irRead(irSensorPin, irLedPin)); //display the results
   delay(10); //wait for the string to be sent
