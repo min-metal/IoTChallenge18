@@ -35,16 +35,16 @@ State_Result State::run()
   memset(trafficHistory, 0, sizeof(short) * MAX);
   memset(timeHistory, 0, sizeof(unsigned int) * MAX);
 
-
-  Serial.print("Max: ");
-  Serial.println(MAX);
-  Serial.print("lower: ");
-  Serial.println(this->thresholdPoints[this->currentState]);
-  Serial.print("upper: ");
-  Serial.println(this->thresholdPoints[this->currentState + 1]);
-  Serial.print("freq: ");
-  Serial.println(this->msgFrequencies[this->currentState]);
-  delay(100);
+//
+//  Serial.print("Max: ");
+//  Serial.println(MAX);
+//  Serial.print("lower: ");
+//  Serial.println(this->thresholdPoints[this->currentState]);
+//  Serial.print("upper: ");
+//  Serial.println(this->thresholdPoints[this->currentState + 1]);
+//  Serial.print("freq: ");
+//  Serial.println(this->msgFrequencies[this->currentState]);
+//  delay(100);
 
   unsigned long timeStart = millis();
   unsigned long timeEnd = timeStart + 60000*pingHowOften;
@@ -65,31 +65,31 @@ State_Result State::run()
       timeForPeriod = timeForPeriod + timeHistory[i]; 
     }
 
-    for(int i = 0; i<MAX; ++i)
-    {
-      Serial.print("trafficHistory: ");
-      Serial.println(trafficHistory[i]);
-      Serial.print("timeHistory: ");
-      Serial.println(timeHistory[i]); 
-    }
+//    for(int i = 0; i<MAX; ++i)
+//    {
+//      Serial.print("trafficHistory: ");
+//      Serial.println(trafficHistory[i]);
+//      Serial.print("timeHistory: ");
+//      Serial.println(timeHistory[i]); 
+//    }
 
     
-    Serial.print("netTrafficForPeriod: ");
-    Serial.println(netTrafficForPeriod);
-    Serial.print("timeForPeriod: ");
-    Serial.println(timeForPeriod);
+//    Serial.print("netTrafficForPeriod: ");
+//    Serial.println(netTrafficForPeriod);
+//    Serial.print("timeForPeriod: ");
+//    Serial.println(timeForPeriod);
     
     double averageRate = (double) netTrafficForPeriod/ (double)timeForPeriod;
-    
-    Serial.print("In: ");
-    Serial.println(traffic.in);
-    Serial.print("Out: ");
-    Serial.println(traffic.out);
-    Serial.print("DetlaTime: ");
-    Serial.println(traffic.deltaTime);
-    Serial.print("Average Rate(ppl/s)");
-    Serial.println(averageRate * 1000);
-    delay(1000);
+//    
+//    Serial.print("In: ");
+//    Serial.println(traffic.in);
+//    Serial.print("Out: ");
+//    Serial.println(traffic.out);
+//    Serial.print("DetlaTime: ");
+//    Serial.println(traffic.deltaTime);
+//    Serial.print("Average Rate(ppl/s)");
+//    Serial.println(averageRate * 1000);
+//    delay(1000);
 
     if(count % MAX == 0)
     {

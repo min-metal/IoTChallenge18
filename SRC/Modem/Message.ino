@@ -5,10 +5,22 @@ boolean getMessage(String string, Message * message)
   int messageID = -1, port = 0;
   int i = 0;
 
-  if(string.length() == 0)
+  if(string.length() == 0 || string.length() >= STRLEN)
   {
     return false;
   }
+
+  // Message must be in right format
+  int count = 0;
+  for(int j = 0; j < string.length(); ++i)
+  {
+    if(string.charAt(i) == ',')
+    {
+      ++count;
+    }
+  }
+  if(count != 2)
+    return false;
 
   // first interation to find ','
   for(i = 0; i < string.length(); ++i)

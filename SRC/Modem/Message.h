@@ -1,6 +1,8 @@
 #ifndef MESSAGE
 #define MESSAGE
 
+#define STRLEN 50
+
 typedef struct 
 {
   int message_id;

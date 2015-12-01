@@ -1,5 +1,3 @@
-#define STRLEN 50
-
 #include "State.h"
 #include "Message.h"
 
@@ -10,6 +8,7 @@
 
 LoRaModem modem;
 
+unsigned long timeStart;
 
 void setup()
 {
@@ -20,6 +19,7 @@ void setup()
     delay(1000);
   #endif
 
+  timeStart = millis();
   IR_setup();
   
   DEBUG_PRINT("Connected");
@@ -36,19 +36,28 @@ void setup()
 //  modem.Msg("9999");
 
 //    modem.Msg("IN:12,OUT:15,AREA:1");
-//    modem.Msg("111,12,15,1");
+    
 //    delay(1000);
-  
+//
+//  modem.cMsg("111,12,15,1");
+//  modem.cMsg("100,123.45");
+//  delay(1000);
+//  modem.checkAT();
 }
 
 /* Loop ****************************/
 
 double thresholdPoints[6] = {-0.5, -0.25, -0.1, 0.1, 0.25, 0.5};
-unsigned short msgFreq[5] = {1, 30, 1, 30, 1};
+unsigned short msgFreq[5] = {1, 1, 1, 1, 1}; /* {1, 30, 60, 30, 1} */
 State state(thresholdPoints, msgFreq, 1, &modem);
 
 void loop() // run over and over
 {  
+  char prompt[20];
+  int upTime = (millis() - timeStart)/1000;
+  sprintf(prompt, "Uptime: %d", upTime);
+  delay(1000);
+  modem.cMsg(prompt);
 //  
 //  modem.cMsg("100,123.45");
 //  delay(2000);
@@ -76,8 +85,22 @@ void loop() // run over and over
 //    delay(1000);
 //  }
 
-  modem.Msg("AT");
-  delay(1000);
+//  Message message;
+//  boolean mResult;
+//  byte count, MAX_TRIES = 3;
+//  do {
+//    modem.cMsg("AT");
+//    delay(1000);
+//    String downLink = modem.getAscii();
+//    if(mResult = getMessage(downLink, &message))
+//    {
+//      //exec_message(&message, &state);
+//    }
+//    ++count;
+//  }
+//  while(mResult || (count >= MAX_TRIES));
+
+  
   State_Result result = state.run();
 
 //  if(result == PREV_STATE && (state.currentState != HI_OUT))
