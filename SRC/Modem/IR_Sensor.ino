@@ -42,27 +42,33 @@ int irRead(int readPin, int triggerPin)
   return digitalRead(readPin);
 }
 
-/*
- * @param readTime: how long do you want the function to get data for. (in seconds)
- */
-int getTraffic(Traffic * traffic, int readTime)
+int getTraffic(int (*readOne) (int, int), int (*readTwo) (int, int), Traffic * traffic)
 {
-  int DELAY = 100;
+  int ir1, ir2;
+  int in = 0, out = 0;
 
-  byte ir1, ir2;
-  unsigned int in = 0, out = 0;
-  unsigned long timeStart, timeEnd;
+//  digitalWrite(enPin,HIGH);
+//  digitalWrite(enPin2,HIGH);
+//  ir1 = readOne(irSensorPin, irLedPin);
+//  ir2 = readTwo(irSensorPin2, irLedPin2);
+//  digitalWrite(enPin,LOW);
+//  digitalWrite(enPin2,LOW);
+//  Serial.print("ir1: ");
+//  Serial.println(ir1);
+//  Serial.print("ir2: ");
+//  Serial.println(ir2);
+  
+  // delay(1000);
 
-  //* Can overflow (in 50 days)*/
-  timeStart = millis();
+  int DELAY = 200;
+  
 
-  int x = readTime * 1000 /DELAY;
-  for(int i = 0; i < x; ++i) //if readTime == 5, for approx. 5 seconds (50 cycles w/ 100mS delay + reading time + execution time), read sensors
+  for(int i = 0; i < 50; ++i) //for approx. 10 seconds (100 cycles w/ 100mS delay), read sensors
   {
     digitalWrite(enPin,HIGH);
     digitalWrite(enPin2,HIGH);
-    ir1 = irRead(irSensorPin, irLedPin);
-    ir2 = irRead(irSensorPin2, irLedPin2); 
+    ir1 = readOne(irSensorPin, irLedPin);
+    ir2 = readTwo(irSensorPin2, irLedPin2); 
     digitalWrite(enPin,LOW);
     digitalWrite(enPin2,LOW);
 
@@ -75,12 +81,12 @@ int getTraffic(Traffic * traffic, int readTime)
     if(ir1 == CLOSED)
     {
       boolean success = false;
-      // for approx 0.5 seconds (5 cycles of 100 mS) , read value of 2nd sensor
+      // for approx 2 seconds (10 cycles of 200mS) , read value of 2nd sensor
       for(int i = 0; i < 5; ++i)
       {
-        digitalWrite(enPin,HIGH);
-        ir2 = irRead(irSensorPin2 ,irLedPin2);
-        digitalWrite(enPin,LOW);
+        digitalWrite(enPin2,HIGH);
+        ir2 = readTwo(irSensorPin2 ,irLedPin2);
+        digitalWrite(enPin2,LOW);
 
         if(ir2 == CLOSED)
         {
@@ -100,11 +106,11 @@ int getTraffic(Traffic * traffic, int readTime)
     else if(ir2 == CLOSED)
     {
       boolean success = false;
-      // for approx 0.5 seconds, read value of 1st sensor
+      // for approx 2 seconds, read value of 1st sensor
       for(int i = 0; i < 5; ++i)
       {
         digitalWrite(enPin,HIGH);
-        ir1 = irRead(irSensorPin, irLedPin);
+        ir1 = readOne(irSensorPin, irLedPin);
         digitalWrite(enPin,LOW);
 
         if(ir1 == CLOSED)
@@ -128,11 +134,15 @@ int getTraffic(Traffic * traffic, int readTime)
   digitalWrite(enPin,LOW);
   digitalWrite(enPin2,LOW);
 
-  timeEnd = millis();
-
   traffic->in = in;
   traffic->out = out;
-  traffic->deltaTime = timeEnd - timeStart;
+
+  Serial.print("In: ");
+  Serial.println(in);
+  Serial.print("Out: ");
+  Serial.println(out);
+
+  delay(50);
 
   return in - out; 
 }

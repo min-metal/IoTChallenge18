@@ -3,13 +3,15 @@
 #include "State.h"
 #include "Message.h"
 
+#include "State_Low.h"
+
 
 /***************************************************************
  * Normal Arduino stuff starts here.
  */
 
 LoRaModem modem;
-
+State_Low low_state(0, 99, 1, &modem);
 
 void setup()
 {
@@ -35,14 +37,10 @@ void setup()
 //
 //  modem.Msg("9999");
 
-//    modem.Msg("IN:12,OUT:15,AREA:1");
-    modem.Msg("111,12,15,1");
+    modem.Msg("IN:12,OUT:15,AREA:1");
+    modem.Msg("100,12,15,1");
   
 }
-
-int thresholdPoints[4] = {0, 100, 500, 1000};
-int msgFreq[3] = {60, 30, 10};
-State state(thresholdPoints, msgFreq, 1, &modem);
 
 /* Loop ****************************/
 
@@ -79,7 +77,7 @@ void loop() // run over and over
 
   State_Result result;
 
-  state.run();
+  low_state.run();
 
   Serial.println(irRead(irSensorPin, irLedPin)); //display the results
   delay(10); //wait for the string to be sent
