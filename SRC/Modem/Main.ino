@@ -48,7 +48,7 @@ void setup()
 /* Loop ****************************/
 
 double thresholdPoints[6] = {-0.5, -0.25, -0.1, 0.1, 0.25, 0.5};
-unsigned short msgFreq[5] = {1, 30, 60, 30, 1}; /* {1, 30, 60, 30, 1} */
+unsigned short msgFreq[5] = {1, 1, 1, 1, 1}; /* {1, 30, 60, 30, 1} */
 State state(thresholdPoints, msgFreq, 1, &modem);
 
 void loop() // run over and over
