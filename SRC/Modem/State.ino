@@ -1,7 +1,7 @@
 #include "State.h"
-State::State(int * thresholdPoints, int * freq, int area, LoRaModem * modem)
+State::State(double * thresholdPoints, unsigned short * freq, int area, LoRaModem * modem)
 {
-  this->currentState = HI_STATE;
+  this->currentState = AVG;
   this->areaID = area;
   this->modem = modem;
 
@@ -25,9 +25,16 @@ void State::setArea(int area)
 State_Result State::run()
 {
   Traffic traffic;
-  unsigned short MAX = this->msgFrequencies[this->currentState]; //5; 
-  long trafficHistory[MAX], netTrafficForPeriod = 0;
-  unsigned long timeHistory[MAX], timeForPeriod = 0;
+
+  unsigned short pingHowOften = this->msgFrequencies[this->currentState];
+  unsigned short READ_DURATION = 30; // hard_coded value of how long getTraffic will run (in seconds)
+  unsigned short MAX =  pingHowOften * 60 / READ_DURATION + 1;//20; //max value for history
+  int trafficHistory[MAX], netTrafficForPeriod = 0;
+  unsigned int timeHistory[MAX];
+  unsigned long timeForPeriod = 0;
+  memset(trafficHistory, 0, sizeof(short) * MAX);
+  memset(timeHistory, 0, sizeof(unsigned int) * MAX);
+
 
   Serial.print("Max: ");
   Serial.println(MAX);
@@ -37,39 +44,42 @@ State_Result State::run()
   Serial.println(this->thresholdPoints[this->currentState + 1]);
   Serial.print("freq: ");
   Serial.println(this->msgFrequencies[this->currentState]);
+  delay(100);
 
-
-
+  unsigned long timeStart = millis();
+  unsigned long timeEnd = timeStart + 60000*pingHowOften;
 
   unsigned short count = 0;
-
-  memset(trafficHistory, 0, sizeof(long) * MAX);
-  memset(timeHistory, 0, sizeof(unsigned long) * MAX);
-  
   while(true)
   {
-    getTraffic(&traffic, 5); // TODO change
+    getTraffic(&traffic, READ_DURATION);
     trafficHistory[count] = traffic.in - traffic.out;
     timeHistory[count] = traffic.deltaTime;
     ++count;
 
-    netTrafficForPeriod = timeForPeriod = 0;
+    netTrafficForPeriod = 0;
+    timeForPeriod = 0;
     for(int i = 0; i < MAX; ++i)
     {
       netTrafficForPeriod += trafficHistory[i];
-      timeForPeriod += timeHistory[i]; 
+      timeForPeriod = timeForPeriod + timeHistory[i]; 
     }
-    
-    double averageRate = (double) netTrafficForPeriod/timeForPeriod; // this is the average rate for the last MAX (20) readings
 
-    if(averageRate < this->thresholdPoints[this->currentState])
+    for(int i = 0; i<MAX; ++i)
     {
-      // return decrease_state
+      Serial.print("trafficHistory: ");
+      Serial.println(trafficHistory[i]);
+      Serial.print("timeHistory: ");
+      Serial.println(timeHistory[i]); 
     }
-    if(averageRate >= this->thresholdPoints[this->currentState + 1])
-    {
-      // return increase_state
-    }
+
+    
+    Serial.print("netTrafficForPeriod: ");
+    Serial.println(netTrafficForPeriod);
+    Serial.print("timeForPeriod: ");
+    Serial.println(timeForPeriod);
+    
+    double averageRate = (double) netTrafficForPeriod/ (double)timeForPeriod;
     
     Serial.print("In: ");
     Serial.println(traffic.in);
@@ -79,13 +89,34 @@ State_Result State::run()
     Serial.println(traffic.deltaTime);
     Serial.print("Average Rate(ppl/s)");
     Serial.println(averageRate * 1000);
+    delay(1000);
 
     if(count % MAX == 0)
     {
-      // send some message to server
-      this->modem->Msg("I did a period");
       count = 0;
     }
+    
+    if(millis() >= timeEnd)
+    {
+       
+      if(averageRate*1000 < this->thresholdPoints[this->currentState]
+          && this->currentState != HI_OUT)
+      {
+        DEBUG_PRINT("moving down state");
+        return PREV_STATE;
+      }
+      else if(averageRate*1000 >= this->thresholdPoints[this->currentState + 1]
+          && this->currentState != HI_IN)
+      {
+        DEBUG_PRINT("moving up state");
+        return NEXT_STATE;
+      }
+      else {
+        this->modem->Msg("I did a period");
+        return SAME_STATE;
+      }
+    }
+
 
     
   }

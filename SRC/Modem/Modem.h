@@ -13,7 +13,7 @@
 
 #define rx_timeout 8000
 #define rx_timeout_fast 500
-#define rx_buffer 200
+#define rx_buffer 100
 
 #define idDevAddr "6a 4d b0 12"
 #define idDevEui "11 11 11 11 6a 4d b0 12"
@@ -60,7 +60,6 @@ class LoRaModem
     int Reset();
 
     String getAscii();
-    char * getAsciiAsP();
     
     char modemResp[rx_buffer];
     char DevAddr[12];

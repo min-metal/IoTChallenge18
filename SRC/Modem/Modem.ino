@@ -199,32 +199,3 @@ String LoRaModem::getAscii(){
     }
 }
 
-char * LoRaModem::getAsciiAsP(){
-
-  char buf[100];
-  char * bufAscii = (char *) malloc(100);
-  
-  char result = _rspMs.Match(".+RX: \"(.+)\".+", 0);
-  if (result == REGEXP_MATCHED)
-  {
-    _rspMs.GetCapture (buf, 0);
-  
-    int j = 0;
-    for (int i = 0; i < strlen(buf)+1; i += 3) 
-    {
-      char val = buf[i] > 0x39 ? (buf[i] - 55) * 16 : (buf[i] - '0') * 16;
-      val += buf[i+1] > 0x39 ? (buf[i+1] - 55) : (buf[i+1] - '0');
-      bufAscii[j++] = val;
-    }
-    return bufAscii;
-  }
-  else
-  {
-    DEBUG_PRINT("No ASCII payload...");
-    return NULL;
-  }
-
-    
-}
-
-

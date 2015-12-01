@@ -36,55 +36,59 @@ void setup()
 //  modem.Msg("9999");
 
 //    modem.Msg("IN:12,OUT:15,AREA:1");
-    modem.Msg("111,12,15,1");
+//    modem.Msg("111,12,15,1");
+//    delay(1000);
   
 }
 
-int thresholdPoints[4] = {0, 100, 500, 1000};
-int msgFreq[3] = {60, 30, 10};
-State state(thresholdPoints, msgFreq, 1, &modem);
-
 /* Loop ****************************/
 
+double thresholdPoints[6] = {-0.5, -0.25, -0.1, 0.1, 0.25, 0.5};
+unsigned short msgFreq[5] = {1, 30, 1, 30, 1};
+State state(thresholdPoints, msgFreq, 1, &modem);
 
 void loop() // run over and over
-{
-  String returnMessage;
+{  
 //  
 //  modem.cMsg("100,123.45");
 //  delay(2000);
+//
+//  String test = modem.getAscii();
+//  //char * test = modem.getAsciiAsP();
+//  delay(1000);
+  
+//  DEBUG_PRINT(test);
 
-  String test = modem.getAscii();
-  //char * test = modem.getAsciiAsP();
+//  Message message;
+//  boolean operationResult = getMessage(test, &message);
+//
+//  if(operationResult)
+//  {
+//    Serial.print("ID: ");
+//    Serial.println(message.message_id);
+//    Serial.print("Port: ");
+//    Serial.println(message.port);
+//    Serial.print("Message: ");
+//    Serial.println(message.message);
+//    
+//    String returnMessage = "300," + String(message.port);
+//    modem.cMsg(returnMessage);
+//    delay(1000);
+//  }
+
+  modem.Msg("AT");
   delay(1000);
-  
-  DEBUG_PRINT(test);
+  State_Result result = state.run();
 
-  Message message;
-  boolean operationResult = getMessage(test, &message);
-
-  if(operationResult)
-  {
-    Serial.print("ID: ");
-    Serial.println(message.message_id);
-    Serial.print("Port: ");
-    Serial.println(message.port);
-    Serial.print("Message: ");
-    Serial.println(message.message);
-    
-    returnMessage = "300," + String(message.port);
-    modem.cMsg(returnMessage);
-    delay(1000);
-  }
-
-  State_Result result;
-
-  state.run();
-
-  Serial.println(irRead(irSensorPin, irLedPin)); //display the results
-  delay(10); //wait for the string to be sent
-  
-
-  //free(test);
+//  if(result == PREV_STATE && (state.currentState != HI_OUT))
+//  {
+//    DEBUG_PRINT("moving down state");
+//    state.currentState--;
+//  }
+//  else if(result == NEXT_STATE && (state.currentState != HI_IN))
+//  {
+//    DEBUG_PRINT("moving up state");
+//    state.currentState++;
+//  }
 }
 
