@@ -29,13 +29,14 @@ State_Result State::run()
   unsigned short pingHowOften = this->msgFrequencies[this->currentState];
   unsigned short READ_DURATION = 30; // hard_coded value of how long getTraffic will run (in seconds)
   unsigned short MAX =  pingHowOften * 60 / READ_DURATION + 1;//20; //max value for history
-  int trafficHistory[MAX], netTrafficForPeriod = 0;
-  unsigned int timeHistory[MAX];
+  //short trafficHistory[MAX];
+  int netTrafficForPeriod = 0, allIn = 0, allOut = 0;
+  //unsigned int timeHistory[MAX];
   unsigned long timeForPeriod = 0;
-  memset(trafficHistory, 0, sizeof(short) * MAX);
-  memset(timeHistory, 0, sizeof(unsigned int) * MAX);
+  //memset(trafficHistory, 0, sizeof(short) * MAX);
+  //memset(timeHistory, 0, sizeof(unsigned int) * MAX);
 
-//
+
 //  Serial.print("Max: ");
 //  Serial.println(MAX);
 //  Serial.print("lower: ");
@@ -53,17 +54,23 @@ State_Result State::run()
   while(true)
   {
     getTraffic(&traffic, READ_DURATION);
-    trafficHistory[count] = traffic.in - traffic.out;
-    timeHistory[count] = traffic.deltaTime;
+    //trafficHistory[count] = traffic.in - traffic.out;
+    allIn += traffic.in;
+    allOut += traffic.out;
+
+    netTrafficForPeriod = allIn - allOut;
+    timeForPeriod += traffic.deltaTime;
+    
+    //timeHistory[count] = traffic.deltaTime;
     ++count;
 
-    netTrafficForPeriod = 0;
-    timeForPeriod = 0;
-    for(int i = 0; i < MAX; ++i)
-    {
-      netTrafficForPeriod += trafficHistory[i];
-      timeForPeriod = timeForPeriod + timeHistory[i]; 
-    }
+//    netTrafficForPeriod = 0;
+//    timeForPeriod = 0;
+//    for(int i = 0; i < MAX; ++i)
+//    {
+//      netTrafficForPeriod += trafficHistory[i];
+//      timeForPeriod = timeForPeriod + timeHistory[i]; 
+//    }
 
 //    for(int i = 0; i<MAX; ++i)
 //    {
@@ -74,10 +81,10 @@ State_Result State::run()
 //    }
 
     
-//    Serial.print("netTrafficForPeriod: ");
-//    Serial.println(netTrafficForPeriod);
-//    Serial.print("timeForPeriod: ");
-//    Serial.println(timeForPeriod);
+    Serial.print("netTrafficForPeriod: ");
+    Serial.println(netTrafficForPeriod);
+    Serial.print("timeForPeriod: ");
+    Serial.println(timeForPeriod);
     
     double averageRate = (double) netTrafficForPeriod/ (double)timeForPeriod;
 //    
@@ -103,16 +110,30 @@ State_Result State::run()
           && this->currentState != HI_OUT)
       {
         DEBUG_PRINT("moving down state");
+        char prompt[40];
+
+        this->currentState--;
+        sprintf(prompt, "222, NET_TRAFFIC=%d:TIME=%lu", netTrafficForPeriod, timeForPeriod);
+        this->modem->Msg(prompt);
         return PREV_STATE;
       }
       else if(averageRate*1000 >= this->thresholdPoints[this->currentState + 1]
           && this->currentState != HI_IN)
       {
         DEBUG_PRINT("moving up state");
+        char prompt[40];
+
+        this->currentState--;
+        sprintf(prompt, "222, NET_TRAFFIC=%d:TIME=%lu", netTrafficForPeriod, timeForPeriod);
+        this->modem->Msg(prompt);
         return NEXT_STATE;
       }
       else {
-        this->modem->Msg("I did a period");
+        char prompt[40];
+        this->currentState--;
+        sprintf(prompt, "222, NET_TRAFFIC=%d:TIME=%lu", netTrafficForPeriod, timeForPeriod);
+        this->modem->Msg(prompt);
+        
         return SAME_STATE;
       }
     }
