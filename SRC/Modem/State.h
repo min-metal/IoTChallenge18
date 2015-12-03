@@ -16,6 +16,13 @@ typedef enum
 typedef enum 
 {
   PREV_STATE, SAME_STATE, NEXT_STATE
+} NextState;
+
+typedef struct
+{
+  int in, out, state;
+  unsigned long Time;
+  NextState next;
 } State_Result;
 
 class State

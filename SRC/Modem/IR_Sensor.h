@@ -15,7 +15,7 @@
 
 int irRead(int readPin, int triggerPin);
 
-int getTraffic(Traffic * traffic, int);
+int getTraffic(Traffic * traffic, unsigned short);
 
 #endif
 

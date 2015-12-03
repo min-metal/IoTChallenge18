@@ -65,4 +65,64 @@ boolean getMessage(String string, Message * message)
   
 }
 
+boolean execMessage(Message * message, State * state)
+{
+  char MSG_FORM[3][5] = {"STTP", "STFR", "STAR"};
+  
+  if(message->message_id != 201)
+    return false;
+
+  if(strncmp(message->message, MSG_FORM[0], 4) == 0)
+  {
+    return setThreshold(message->message, state);
+  }
+  else if(strncmp(message->message, MSG_FORM[1], 4) == 0)
+  {
+    
+  }
+  else if(strncmp(message->message, MSG_FORM[2], 4) == 0)
+  {
+    
+  }
+
+  return false;
+}
+
+boolean setThreshold(char * message, State * state)
+{
+  char * start, * buf, * pEnd = NULL;
+  char * commaArray[5];
+  double doubleArray[6], dubBuf;
+  unsigned short count = 0;
+
+//  buf = strchr(str,',');
+//  while (buf!=NULL)
+//  {
+//    commaArray[count++] = buf;
+//    buf=strchr(buf+1,',');
+//  }
+
+//  if(count != 5)
+//    return false;
+
+  start = strchr(message, '\\');
+
+  count = 0;
+  dubBuf = strtod(start + 1, &pEnd);
+  while(*pEnd)
+  {
+    doubleArray[count++] = dubBuf;
+    dubBuf = strtod(pEnd + 1, &pEnd);
+  }
+
+  if(count!=6)
+    return false;
+
+  Serial.println("read Threshold success");
+  
+  return true;  
+
+  
+}
+
 

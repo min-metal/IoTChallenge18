@@ -1,4 +1,11 @@
 #include "State.h"
+#define IN      100
+#define OUT     101
+#define NET     102
+#define TIME    103
+#define STATE   104
+#define AREA    105
+
 State::State(double * thresholdPoints, unsigned short * freq, int area, LoRaModem * modem)
 {
   this->currentState = AVG;
@@ -27,7 +34,7 @@ State_Result State::run()
   Traffic traffic;
 
   unsigned short pingHowOften = this->msgFrequencies[this->currentState];
-  unsigned short READ_DURATION = 30; // hard_coded value of how long getTraffic will run (in seconds)
+  unsigned short READ_DURATION = 60; // hard_coded value of how long getTraffic will run (in seconds)
   int netTrafficForPeriod = 0, allIn = 0, allOut = 0;
   unsigned long timeForPeriod = 0;
 
@@ -45,12 +52,14 @@ State_Result State::run()
   unsigned short count = 0;
   while(true)
   {
+
     getTraffic(&traffic, READ_DURATION);
     allIn += traffic.in;
     allOut += traffic.out;
 
     netTrafficForPeriod = allIn - allOut;
     timeForPeriod += traffic.deltaTime;
+    double averageRate = (double) netTrafficForPeriod/ (double)timeForPeriod;
 
     Serial.print("allIn: ");
     Serial.println(allIn);
@@ -60,24 +69,38 @@ State_Result State::run()
     Serial.println(netTrafficForPeriod);
     Serial.print("timeForPeriod: ");
     Serial.println(timeForPeriod);
-    
-    double averageRate = (double) netTrafficForPeriod/ (double)timeForPeriod;
     Serial.print("Average Rate(ppl/s)");
     Serial.println(averageRate * 1000);
     delay(1000);
     
     if(millis() >= timeEnd)
     {
-       
+
       if(averageRate*1000 < this->thresholdPoints[this->currentState]
           && this->currentState != HI_OUT)
       {
         DEBUG_PRINT("moving down state");
-        char prompt[40];
+        char prompt[20];
 
         this->currentState--;
-        sprintf(prompt, "222, I=%d:O=%d:N=%d:TME=%lu:S=%d:A=%d", 
-        allIn, allOut, netTrafficForPeriod, timeForPeriod, this->currentState, this->areaID);
+        //sprintf(prompt, "101, I=%diO=%doN=%dnT=%lutS=%dsA=%da", 
+        //allIn, allOut, netTrafficForPeriod, timeForPeriod, this->currentState, this->areaID);
+
+        State_Result result;
+        result.in = allIn;
+        result.out = allOut;
+        result.Time = 
+        sprintf(prompt, "%d,%d", IN, allIn);
+        this->modem->Msg(prompt);
+        sprintf(prompt, "%d,%d", OUT, allOut);
+        this->modem->Msg(prompt);
+        sprintf(prompt, "%d,%d", NET, netTrafficForPeriod);
+        this->modem->Msg(prompt);
+        sprintf(prompt, "%d,%lu", TIME, timeForPeriod / 1000);
+        this->modem->Msg(prompt);
+        sprintf(prompt, "%d,%d", STATE, this->currentState);
+        this->modem->Msg(prompt);
+        sprintf(prompt, "%d,%d", AREA, this->areaID);
         this->modem->Msg(prompt);
         return PREV_STATE;
       }
@@ -85,18 +108,43 @@ State_Result State::run()
           && this->currentState != HI_IN)
       {
         DEBUG_PRINT("moving up state");
-        char prompt[80];
+        char prompt[20];
 
         this->currentState++;
-        sprintf(prompt, "222, I=%d:O=%d:N=%d:TME=%lu:S=%d:A=%d", 
-        allIn, allOut, netTrafficForPeriod, timeForPeriod, this->currentState, this->areaID);
+//        sprintf(prompt, "101, I=%diO=%doN=%dnT=%lutS=%dsA=%da", 
+//        allIn, allOut, netTrafficForPeriod, timeForPeriod, this->currentState, this->areaID);
+  
+        sprintf(prompt, "%d,%d", IN, allIn);
         this->modem->Msg(prompt);
+        sprintf(prompt, "%d,%d", OUT, allOut);
+        this->modem->Msg(prompt);
+        sprintf(prompt, "%d,%d", NET, netTrafficForPeriod);
+        this->modem->Msg(prompt);
+        sprintf(prompt, "%d,%lu", TIME, timeForPeriod / 1000);
+        this->modem->Msg(prompt);
+        sprintf(prompt, "%d,%d", STATE, this->currentState);
+        this->modem->Msg(prompt);
+        sprintf(prompt, "%d,%d", AREA, this->areaID);
+        this->modem->Msg(prompt);
+        
         return NEXT_STATE;
       }
       else {
-        char prompt[40];
-        sprintf(prompt, "222, I=%d:O=%d:N=%d:TME=%lu:S=%d:A=%d", 
-        allIn, allOut, netTrafficForPeriod, timeForPeriod, this->currentState, this->areaID);
+        char prompt[20];
+//        sprintf(prompt, "101, I=%diO=%doN=%dnT=%lutS=%dsA=%da", 
+//        allIn, allOut, netTrafficForPeriod, timeForPeriod, this->currentState, this->areaID);
+        
+        sprintf(prompt, "%d,%d", IN, allIn);
+        this->modem->Msg(prompt);
+        sprintf(prompt, "%d,%d", OUT, allOut);
+        this->modem->Msg(prompt);
+        sprintf(prompt, "%d,%d", NET, netTrafficForPeriod);
+        this->modem->Msg(prompt);
+        sprintf(prompt, "%d,%lu", TIME, timeForPeriod / 1000);
+        this->modem->Msg(prompt);
+        sprintf(prompt, "%d,%d", STATE, this->currentState);
+        this->modem->Msg(prompt);
+        sprintf(prompt, "%d,%d", AREA, this->areaID);
         this->modem->Msg(prompt);
         
         return SAME_STATE;

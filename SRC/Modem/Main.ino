@@ -40,7 +40,7 @@ void setup()
 //    delay(1000);
 //
 //  modem.cMsg("111,12,15,1");
-//  modem.cMsg("100,123.45");
+//  modem.cMsg("100,-123.45");
 //  delay(1000);
 //  modem.checkAT();
 }
@@ -88,23 +88,26 @@ void loop() // run over and over
 //    delay(1000);
 //  }
 
-//  Message message;
-//  boolean mResult;
-//  byte count, MAX_TRIES = 3;
-//  do {
-//    modem.cMsg("AT");
-//    delay(1000);
-//    String downLink = modem.getAscii();
-//    if(mResult = getMessage(downLink, &message))
-//    {
-//      //exec_message(&message, &state);
-//    }
-//    ++count;
-//  }
-//  while(mResult || (count >= MAX_TRIES));
+  Message message;
+  boolean mResult;
+  byte count = 0, MAX_TRIES = 5;
+  do {
+    modem.Msg("AT");
+    delay(1000);
+    String downLink = modem.getAscii();
+    if(mResult = getMessage(downLink, &message))
+    {
+      execMessage(&message, &state);
+    }
+    ++count;
+
+    if(count == MAX_TRIES)
+      break;
+  }
+  while(mResult); //If a message is recieved, keep reading for more messages
 
   
-  State_Result result = state.run();
+  //State_Result result = state.run();
 
 }
 

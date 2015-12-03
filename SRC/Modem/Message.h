@@ -1,6 +1,8 @@
 #ifndef MESSAGE
 #define MESSAGE
 
+#include "State.h"
+
 #define STRLEN 50
 
 typedef struct 
@@ -11,6 +13,8 @@ typedef struct
 } Message;
 
 boolean getMessage(String string, Message * message);
+boolean execMessage(Message * message, State * state);
+boolean setThreshold(char * message, State * state);
 
 #endif
 

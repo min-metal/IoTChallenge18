@@ -45,26 +45,27 @@ int irRead(int readPin, int triggerPin)
 /*
  * @param readTime: how long do you want the function to get data for. (in seconds)
  */
-int getTraffic(Traffic * traffic, int readTime)
+int getTraffic(Traffic * traffic, unsigned short readTime)
 {
   int DELAY = 100;
 
   byte ir1, ir2;
   unsigned int in = 0, out = 0;
   unsigned long timeStart, timeEnd;
+  unsigned int x = (unsigned int) ((unsigned int) readTime * 1000 / DELAY);
 
   //* Can overflow (in 50 days)*/
   timeStart = millis();
 
-  int x = readTime * 1000 /DELAY;
+  
   for(int i = 0; i < x; ++i) //if readTime == 5, for approx. 5 seconds (50 cycles w/ 100mS delay + reading time + execution time), read sensors
   {
     digitalWrite(enPin,HIGH);
-    digitalWrite(enPin2,HIGH);
+//    digitalWrite(enPin2,HIGH);
     ir1 = irRead(irSensorPin, irLedPin);
     ir2 = irRead(irSensorPin2, irLedPin2); 
     digitalWrite(enPin,LOW);
-    digitalWrite(enPin2,LOW);
+//    digitalWrite(enPin2,LOW);
 
     if(!ir1 && !ir2)
     {
@@ -76,7 +77,7 @@ int getTraffic(Traffic * traffic, int readTime)
     {
       boolean success = false;
       // for approx 0.5 seconds (5 cycles of 100 mS) , read value of 2nd sensor
-      for(int i = 0; i < 5; ++i)
+      for(int i = 0; i < 10; ++i)
       {
         digitalWrite(enPin,HIGH);
         ir2 = irRead(irSensorPin2 ,irLedPin2);
@@ -101,7 +102,7 @@ int getTraffic(Traffic * traffic, int readTime)
     {
       boolean success = false;
       // for approx 0.5 seconds, read value of 1st sensor
-      for(int i = 0; i < 5; ++i)
+      for(int i = 0; i < 10; ++i)
       {
         digitalWrite(enPin,HIGH);
         ir1 = irRead(irSensorPin, irLedPin);
