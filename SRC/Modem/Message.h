@@ -3,7 +3,7 @@
 
 #include "State.h"
 
-#define STRLEN 50
+#define STRLEN 80
 
 typedef struct 
 {

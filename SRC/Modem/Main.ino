@@ -25,14 +25,15 @@ void setup()
   DEBUG_PRINT("Connected");
 
   modem.Reset();
-//  delay(1000);
-//  modem.setPort("1");
-//  delay(1000);
-//  
-//  modem.setID(idDevAddr, idDevEui);
-//  delay(1000);
-//  modem.setKeys(idNwSKey, idAppSKey);
-//
+  delay(1000);
+  modem.setPort("1");
+  delay(1000);
+  
+  modem.setID(idDevAddr, idDevEui);
+  delay(1000);
+  modem.setKeys(idNwSKey, idAppSKey);
+  delay(1000);
+
 //  modem.Msg("9999");
 
 //    modem.Msg("IN:12,OUT:15,AREA:1");
@@ -40,9 +41,11 @@ void setup()
 //    delay(1000);
 //
 //  modem.cMsg("111,12,15,1");
-//  modem.cMsg("100,-123.45");
-//  delay(1000);
+  modem.cMsg("100,-123.45");
+  delay(1000);
 //  modem.checkAT();
+
+//    modem.Msg("AT");
 }
 
 /* Loop ****************************/
@@ -53,7 +56,7 @@ State state(thresholdPoints, msgFreq, 1, &modem);
 
 void loop() // run over and over
 {  
-  char prompt[20];
+  char prompt[40];
 //  unsigned long upTime = millis() - timeStart;
 //  sprintf(prompt, "Uptime: %dh:%dm:%ds", 
 //    upTime/3600000, upTime/60000, upTime/1000);
@@ -71,43 +74,77 @@ void loop() // run over and over
   
 //  DEBUG_PRINT(test);
 
+
 //  Message message;
-//  boolean operationResult = getMessage(test, &message);
-//
-//  if(operationResult)
-//  {
-//    Serial.print("ID: ");
-//    Serial.println(message.message_id);
-//    Serial.print("Port: ");
-//    Serial.println(message.port);
-//    Serial.print("Message: ");
-//    Serial.println(message.message);
-//    
-//    String returnMessage = "300," + String(message.port);
-//    modem.cMsg(returnMessage);
+//  boolean mResult;
+//  byte count = 0, MAX_TRIES = 5;
+//  do {
+//    modem.Msg(" ");
 //    delay(1000);
+//    String downLink = modem.getAscii();
+//    Serial.println(downLink);
+//    if(getMessage(downLink, &message))
+//    {
+//      String returnMessage = "300," + String(message.port);
+//      modem.Msg(returnMessage);
+//      //execMessage(&message, &state);
+//    }
+//    ++count;
+//
+//    if(count == MAX_TRIES)
+//      break;
 //  }
+//  while(mResult); //If a message is recieved, keep reading for more messages
 
-  Message message;
-  boolean mResult;
-  byte count = 0, MAX_TRIES = 5;
-  do {
-    modem.Msg("AT");
-    delay(1000);
-    String downLink = modem.getAscii();
-    if(mResult = getMessage(downLink, &message))
-    {
-      execMessage(&message, &state);
-    }
-    ++count;
+//    Message message;
+//    modem.Msg(" ");
+//    delay(1000);
+//    String downLink = modem.getAscii();
+//    Serial.println(downLink);
+//    getMessage(downLink, &message);
 
-    if(count == MAX_TRIES)
-      break;
-  }
-  while(mResult); //If a message is recieved, keep reading for more messages
+
+//  Serial.println("hello");
+//  delay(1000);
+    
+//    if(getMessage(downLink, &message))
+//    {
+//      char returnMessage[40];
+//      sprintf(returnMessage, "300, %d", message.port);
+//      //String returnMessage = "300," + String(message.port);
+//      modem.Msg(returnMessage);
+//      //execMessage(&message, &state);
+//    }
 
   
-  //State_Result result = state.run();
+  
+  State_Result result = state.run();
 
+
+  Serial.print("allIn: ");
+  Serial.println(result.in);
+  Serial.print("allOut: ");
+  Serial.println(result.out);
+  Serial.print("timeForPeriod: ");
+  Serial.println(result.Time);
+  Serial.print("Area: ");
+  Serial.println(result.area);
+
+  sprintf(prompt, "111,%d,%d,%lu,%d", 
+  result.in, result.out, result.Time / 1000, result.area);
+
+  
+  Serial.println(prompt);
+  modem.Msg(prompt);
+  
+  delay(1000);
+
+
+//    digitalWrite(enPin,HIGH);
+////    digitalWrite(enPin2,HIGH);
+//    Serial.println(irRead(irSensorPin, irLedPin));
+////    Serial.println(irRead(irSensorPin2, irLedPin2)); 
+//    digitalWrite(enPin,LOW);
+//    delay(100);
 }
 

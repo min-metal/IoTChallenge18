@@ -67,6 +67,15 @@ int getTraffic(Traffic * traffic, unsigned short readTime)
     digitalWrite(enPin,LOW);
 //    digitalWrite(enPin2,LOW);
 
+    timeEnd = millis();
+    if(timeEnd - timeStart > (unsigned long) readTime * 1000)
+    {
+        traffic->in = in;
+        traffic->out = out;
+        traffic->deltaTime = timeEnd - timeStart;
+        return in - out;
+    }
+
     if(!ir1 && !ir2)
     {
       delay(DELAY);
@@ -77,7 +86,7 @@ int getTraffic(Traffic * traffic, unsigned short readTime)
     {
       boolean success = false;
       // for approx 0.5 seconds (5 cycles of 100 mS) , read value of 2nd sensor
-      for(int i = 0; i < 10; ++i)
+      for(int i = 0; i < 5; ++i)
       {
         digitalWrite(enPin,HIGH);
         ir2 = irRead(irSensorPin2 ,irLedPin2);
@@ -102,7 +111,7 @@ int getTraffic(Traffic * traffic, unsigned short readTime)
     {
       boolean success = false;
       // for approx 0.5 seconds, read value of 1st sensor
-      for(int i = 0; i < 10; ++i)
+      for(int i = 0; i < 5; ++i)
       {
         digitalWrite(enPin,HIGH);
         ir1 = irRead(irSensorPin, irLedPin);

@@ -13,16 +13,11 @@ typedef enum
   HI_OUT = 0, MED_OUT, AVG, MED_IM, HI_IN
 } CURRENT_STATE;
 
-typedef enum 
-{
-  PREV_STATE, SAME_STATE, NEXT_STATE
-} NextState;
-
 typedef struct
 {
-  int in, out, state;
+  int in, out, area;
   unsigned long Time;
-  NextState next;
+  byte next;
 } State_Result;
 
 class State
